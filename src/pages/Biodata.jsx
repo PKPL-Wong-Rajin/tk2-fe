@@ -23,9 +23,8 @@ const skillLogos = {
 
 export default function Biodata() {
   const { id } = useParams();
-  const navigate = useNavigate(); // Hook untuk pindah halaman
+  const navigate = useNavigate();
   
-  // Mencari index anggota saat ini untuk menentukan siapa sebelum & sesudahnya
   const currentIndex = groupMembers.findIndex(m => m.id === id);
   const member = currentIndex !== -1 ? groupMembers[currentIndex] : null;
   
@@ -34,24 +33,19 @@ export default function Biodata() {
   // --- EFEK KEYBOARD NAVIGATION ---
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Abaikan jika modal skills sedang terbuka atau data member tidak ditemukan
       if (isSkillsModalOpen || !member) return;
 
       if (e.key === 'ArrowRight') {
-        // Panah Kanan -> Anggota Selanjutnya (Loop ke awal jika di ujung)
         const nextIndex = (currentIndex + 1) % groupMembers.length;
         navigate(`/member/${groupMembers[nextIndex].id}`);
       } else if (e.key === 'ArrowLeft') {
-        // Panah Kiri -> Anggota Sebelumnya (Loop ke akhir jika di awal)
         const prevIndex = (currentIndex - 1 + groupMembers.length) % groupMembers.length;
         navigate(`/member/${groupMembers[prevIndex].id}`);
       }
     };
 
-    // Pasang 'telinga' ke seluruh halaman untuk mendeteksi pencetan keyboard
     window.addEventListener('keydown', handleKeyDown);
 
-    // Bersihkan 'telinga' saat user pindah komponen agar tidak error
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -59,13 +53,7 @@ export default function Biodata() {
 
   if (!member) return <Navigate to="/" />;
 
-  const splitNameForOutline = (name) => {
-    const alias = name || "NAME";
-    const midPoint = Math.ceil(alias.length / 2);
-    return { top: alias.substring(0, midPoint), bottom: alias.substring(midPoint) };
-  };
-
-  const { top: outlineTop, bottom: outlineBottom } = splitNameForOutline(member.alias);
+  const nameCharacters = (member.alias || "NAME").split('');
 
   const getSkillLogo = (skillName) => {
     const key = skillName.toLowerCase().trim();
@@ -73,7 +61,7 @@ export default function Biodata() {
   };
 
   return (
-    <div className="relative w-full max-w-[1400px] mx-auto min-h-screen lg:min-h-[700px] lg:h-[70dvh] bg-white overflow-hidden lg:overflow-visible font-sans flex flex-col lg:block pt-20 lg:pt-0 pb-12 lg:pb-0 px-4 lg:px-0">
+    <div className="relative w-full max-w-[1400px] mx-auto min-h-screen lg:min-h-[700px] lg:h-[70dvh] bg-white overflow-hidden lg:overflow-visible font-sans flex flex-col lg:block pt-10 lg:pt-0 pb-6 lg:pb-0 lg:px-0">
       
       {/* --- BACKGROUND BLOCKS (DESKTOP) --- */}
       <div className="hidden lg:block absolute top-[12%] bottom-0 left-[6%] w-[20%] bg-[#FEF4CE] z-0 min-h-[600px] max-h-[900px]"></div>
@@ -83,37 +71,44 @@ export default function Biodata() {
       {/* --- MAIN CONTENT --- */}
       
       {/* 1. WRAPPER MOBILE 1: Nama & Foto */}
-      <div className="order-1 relative flex flex-row items-stretch justify-center w-full lg:contents mb-6 lg:mb-0">
-        <div className="absolute top-[15%] bottom-0 left-[-50vw] right-[50%] bg-[#FEF4CE] z-0 lg:hidden"></div>
-        <div className="absolute top-[15%] bottom-0 left-[50%] right-[-50vw] bg-[#EED0AD] z-0 lg:hidden"></div>
+      <div className="order-1 relative flex flex-col lg:flex-row items-center lg:items-stretch justify-center w-full lg:contents mb-6 lg:mb-0 gap-2 lg:gap-0 mt-4 lg:mt-0">
+        
+        <div className="absolute top-[-5%] bottom-0 left-[-50vw] right-[-50vw] bg-[#FEF4CE] z-0 lg:hidden rounded-b-[40px]"></div>
 
-        <div className="relative w-1/2 flex flex-col justify-center items-end lg:block lg:absolute lg:top-[28%] lg:left-[3%] z-10 lg:z-20 pointer-events-none text-right lg:text-left pr-2 sm:pr-4 lg:pr-0">
-          <div className="w-full text-right lg:text-left">
-            <h1 className="text-[14vw] sm:text-[75px] md:text-[90px] lg:text-[140px] font-outline text-transparent opacity-80 leading-[0.85] tracking-widest uppercase break-words">
-              {outlineTop}
-            </h1>
-            <h1 className="text-[14vw] sm:text-[75px] md:text-[90px] lg:text-[140px] font-outline text-transparent opacity-80 leading-[0.85] tracking-widest uppercase break-words">
-              {outlineBottom}
-            </h1>
+        {/* Kolom Kiri: Teks Outline */}
+        {/* PERBAIKAN: Pembungkus luar memiliki items-center (di tengah secara horizontal) */}
+        <div className="relative w-full lg:w-[20%] flex flex-col justify-center items-center lg:absolute lg:top-[15%] lg:left-[6%] z-20 pointer-events-none px-2 lg:px-0 mb-2 lg:mb-0 pt-4 lg:pt-0">
+          
+          {/* PERBAIKAN: Mengubah w-full menjadi w-fit agar box-nya mengecil seukuran teks, dan lg:items-start agar isi di dalamnya rata kiri */}
+          <div className="w-fit flex flex-row flex-wrap lg:flex-col items-center justify-center lg:items-start lg:justify-start text-center gap-x-2 sm:gap-x-3 lg:gap-x-0">
+            {nameCharacters.map((char, index) => (
+              <h1 key={index} className="text-[12vw] sm:text-[60px] md:text-[80px] lg:text-[120px] my-2 font-outline text-transparent opacity-80 leading-none lg:leading-[0.80] tracking-widest uppercase">
+                {char}
+              </h1>
+            ))}
           </div>
         </div>
 
-        <div className="relative w-1/2 flex justify-start items-end lg:items-center lg:justify-center lg:absolute lg:top-[2%] lg:bottom-[24%] lg:left-[26%] lg:w-[28%] z-10 lg:z-20">
+        {/* Kolom Kanan: Foto Profil */}
+        <div className="relative isolate w-full lg:w-[28%] flex justify-center items-end lg:items-center lg:justify-center lg:absolute lg:top-[2%] lg:bottom-[24%] lg:left-[26%] z-10 mt-2 lg:mt-0">
+          
+          <div className="absolute bottom-0 left-[5%] right-[5%] sm:left-[15%] sm:right-[15%] h-[80%] bg-[#EED0AD] z-[-1] lg:hidden rounded-t-[40px]"></div>
+
           <img 
             src={member.photo} 
             alt={member.name} 
-            className="w-full h-auto lg:w-auto lg:h-auto lg:max-h-full object-contain drop-shadow-2xl mix-blend-multiply pl-1 lg:pl-0"
+            className="relative z-10 block h-[320px] sm:h-[350px] lg:h-auto w-auto lg:max-h-full object-contain drop-shadow-2xl mix-blend-normal lg:mix-blend-multiply px-6 sm:px-12 lg:px-0"
             style={{ filter: 'grayscale(100%) contrast(120%)' }} 
           />
         </div>
       </div> 
 
       {/* 3. Teks Deskripsi */}
-      <div className="order-2 relative lg:absolute lg:top-[10%] lg:bottom-[30%] lg:left-[58%] lg:right-[4%] z-20 flex flex-col justify-center bg-[#FEF4CE] lg:bg-transparent px-6 py-8 mt-6 lg:p-0 lg:m-0 rounded-3xl lg:rounded-none lg:pr-4 text-center lg:text-left shadow-sm lg:shadow-none">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
+      <div className="order-2 relative lg:absolute lg:top-[10%] lg:bottom-[30%] lg:left-[58%] lg:right-[4%] z-20 flex flex-col justify-center bg-[#FEF4CE] lg:bg-transparent px-6 py-6 mt-4 lg:p-0 lg:m-0 rounded-3xl lg:rounded-none lg:pr-4 text-center lg:text-left shadow-sm lg:shadow-none">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 lg:mb-4 leading-tight">
           {member.name} - {member.npm}
         </h2>
-        <p className="text-[13px] lg:text-[14px] text-gray-800 mb-8 font-medium leading-relaxed max-w-md mx-auto lg:mx-0">
+        <p className="text-[13px] lg:text-[14px] text-gray-800 mb-5 font-medium leading-relaxed max-w-md mx-auto lg:mx-0">
           {member.description}
         </p>
         
@@ -127,7 +122,7 @@ export default function Biodata() {
       </div>
 
       {/* 4. --- BOTTOM NAVIGATION --- */}
-      <div className="order-3 relative lg:absolute lg:bottom-[10%] lg:left-[30%] lg:right-[6%] flex flex-row flex-wrap justify-center lg:grid lg:grid-cols-3 items-center z-20 mt-10 lg:mt-0 gap-x-8 gap-y-4 lg:gap-0">
+      <div className="order-3 relative lg:absolute lg:bottom-[10%] lg:left-[30%] lg:right-[6%] flex flex-row flex-wrap justify-center lg:grid lg:grid-cols-3 items-center z-20 mt-5 lg:mt-0 gap-x-8 gap-y-4 lg:gap-0">
         
         {[
           member.downloadCv && (
