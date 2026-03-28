@@ -5,26 +5,99 @@ import { FaLinkedin, FaGithub, FaEnvelope, FaTimes } from 'react-icons/fa';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const skillLogos = {
+  // Bahasa Web Dasar
   html: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
   css: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
   javascript: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
   js: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
+  typescript: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
+
+  // Frontend Frameworks & UI
   react: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-  node: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+  vue: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg",
+  angular: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg",
+  svelte: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/svelte/svelte-original.svg",
+  "next.js": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg",
+  tailwind: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
+  bootstrap: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg",
+  sass: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg",
+  jquery: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jquery/jquery-original.svg",
+  figma: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
+
+  // Bahasa Pemrograman (Backend, Data, Software)
   python: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
   java: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
   php: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg",
+  c: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg",
+  "c++": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg",
+  "c#": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg",
+  go: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg",
+  rust: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-plain.svg",
+  ruby: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ruby/ruby-original.svg",
+  r: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/r/r-original.svg",
+
+  // Backend Frameworks & Runtime
+  node: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+  nodejs: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+  express: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg",
+  django: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg",
+  flask: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg",
+  laravel: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg",
+  spring: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg",
+
+  // Database & Cloud/DevOps
   mysql: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
-  figma: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
-  tailwind: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
+  postgresql: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
+  mongodb: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
+  sqlite: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg",
+  redis: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg",
+  firebase: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg",
+  aws: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg",
+  gcp: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg",
+  docker: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
+  kubernetes: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg",
+  linux: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg",
+
+  // Mobile & Tools
+  flutter: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg",
+  dart: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg",
+  kotlin: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kotlin/kotlin-original.svg",
+  swift: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swift/swift-original.svg",
+  android: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg",
+  apple: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg",
   git: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
   github: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
+  npm: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg",
+  webpack: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/webpack/webpack-original.svg",
+
+  // AI & Data:
+  tensorflow: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg",
+  pandas: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg",
+  numpy: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg",
 };
 
 const AVAILABLE_SKILLS = [
-  "HTML", "CSS", "JavaScript", "React", "NodeJS", 
-  "Python", "Java", "PHP", "MySQL", "Figma", 
-  "Tailwind", "Git", "GitHub"
+  // Web Dasar & Style
+  "HTML", "CSS", "JavaScript", "TypeScript", "Sass", "Tailwind", "Bootstrap", "Figma",
+  
+  // Frontend
+  "React", "Vue", "Angular", "Svelte", "Next.js", "jQuery",
+  
+  // Backend & Runtime
+  "NodeJS", "Express", "Python", "Django", "Flask", "PHP", "Laravel", 
+  "Java", "Spring", "C", "C++", "C#", "Go", "Rust", "Ruby", "R",
+  
+  // Database
+  "MySQL", "PostgreSQL", "MongoDB", "SQLite", "Redis", "Firebase",
+  
+  // Cloud, DevOps & Tools
+  "AWS", "GCP", "Docker", "Kubernetes", "Linux", "Git", "GitHub", "NPM", "Webpack",
+  
+  // Mobile
+  "Flutter", "Dart", "Kotlin", "Swift", "Android", "Apple",
+
+  // AI & Data
+  "Tensorflow", "Pandas", "Numpy"
 ];
 
 const GOOGLE_FONTS = [
@@ -458,11 +531,20 @@ export default function Biodata({ members = [], user, onBiodataUpdate, onBgColor
                   <input type="text" placeholder="Ketik untuk mencari skill..." value={skillSearch} onChange={(e) => setSkillSearch(e.target.value)} onFocus={() => setIsSkillDropdownOpen(true)} onBlur={() => setTimeout(() => setIsSkillDropdownOpen(false), 200)} className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none" />
                   {isSkillDropdownOpen && skillSearch && (
                     <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
-                      {availableToSelect.length > 0 ? (
-                        availableToSelect.map(skill => (
-                          <div key={skill} onClick={() => addSkill(skill)} className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm text-gray-700 font-medium border-b last:border-0">+ Tambahkan <span className="font-bold text-gray-900">{skill}</span></div>
-                        ))
-                      ) : <div className="p-4 text-center text-sm text-gray-500">Skill tidak ditemukan</div>}
+                      {availableToSelect.map(skill => (
+                        <div key={skill} onClick={() => addSkill(skill)} className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm text-gray-700 font-medium border-b border-gray-100">
+                          + Tambahkan <span className="font-bold text-gray-900">{skill}</span>
+                        </div>
+                      ))}
+
+                      {!(editForm.skills || []).some(s => s.toLowerCase() === skillSearch.toLowerCase()) && (
+                        <div 
+                          onClick={() => addSkill(skillSearch)} 
+                          className="px-4 py-3 bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer text-sm font-medium sticky bottom-0"
+                        >
+                          + Tambah skill: <span className="font-bold">"{skillSearch}"</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
