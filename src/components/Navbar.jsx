@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaEdit, FaGoogle } from 'react-icons/fa';
-import { groupMembers } from '../data/members.js';
+import { GoogleLogin } from '@react-oauth/google';
+import { FaEdit } from 'react-icons/fa';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const MenuIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
@@ -15,46 +17,47 @@ const CloseIcon = () => (
   </svg>
 );
 
-export default function Navbar({ user, onLogin, onLogout }) {
+export default function Navbar({ user, onLogin, onLogout, members = [] }) {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [loggedInEmail, setLoggedInEmail] = useState(localStorage.getItem('mock_google_email') || null);
+  const [loginLoading, setLoginLoading] = useState(false);
   
   const isMemberPage = location.pathname.includes('/member/');
-  const currentMember = groupMembers.find(m => location.pathname.includes(m.id)) || groupMembers[0];
-
-  useEffect(() => {
-    const handleAuthChange = () => {
-      const email = localStorage.getItem('mock_google_email');
-      setLoggedInEmail(email);
-      if (email && onLogin) onLogin({ email });
-    };
-    
-    // Sinkronisasi awal jika sudah ada data di local storage
-    const initialEmail = localStorage.getItem('mock_google_email');
-    if (initialEmail && !user && onLogin) onLogin({ email: initialEmail });
-
-    window.addEventListener('authChange', handleAuthChange);
-    return () => window.removeEventListener('authChange', handleAuthChange);
-  }, [onLogin, user]);
-
-  const isOwner = isMemberPage && currentMember && loggedInEmail === currentMember.email;
+  const currentMember = members.find(m => location.pathname.includes(m.id)) || members[0];
+  const isOwner = isMemberPage && currentMember && user?.email === currentMember.email;
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  // --- LOGIKA MOCK LOGIN / PROTOTYPE ---
-  const handleMockLogin = () => {
-    const email = prompt("🔧 PROTOTYPE MODE\nMasukkan email anggota (harus sama persis dengan di members.js) untuk test fitur Edit:");
-    if (email) {
-      localStorage.setItem('mock_google_email', email);
-      window.dispatchEvent(new Event('authChange'));
+  /** Handle the credential returned by Google's popup. */
+  const handleGoogleSuccess = async (credentialResponse) => {
+    if (!credentialResponse.credential) return;
+
+    setLoginLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+
+      if (res.ok) {
+        const userData = await res.json();
+        if (onLogin) onLogin(userData);
+      } else {
+        const error = await res.json();
+        console.error('Login failed:', error.message);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setLoginLoading(false);
     }
   };
 
-  const handleMockLogout = () => {
-    localStorage.removeItem('mock_google_email');
-    window.dispatchEvent(new Event('authChange'));
+  const handleLogout = () => {
     if (onLogout) onLogout();
+    closeMobileMenu();
   };
 
   const triggerEditModal = () => {
@@ -79,8 +82,8 @@ export default function Navbar({ user, onLogin, onLogout }) {
 
           {/* MENU DESKTOP */}
           <div className="hidden lg:flex flex-1 justify-center gap-10 group/nav">
-            {groupMembers.map((member) => {
-              const isActive = currentMember.id === member.id;
+            {members.map((member) => {
+              const isActive = currentMember?.id === member.id;
               return (
                 <Link 
                   key={member.id} 
@@ -105,20 +108,24 @@ export default function Navbar({ user, onLogin, onLogout }) {
               </button>
             )}
 
-            {loggedInEmail ? (
+            {user ? (
               <button 
-                onClick={handleMockLogout} 
+                onClick={handleLogout} 
                 className="text-xs font-bold uppercase tracking-widest text-red-600 border border-red-200 bg-white px-5 py-2.5 rounded-full hover:bg-red-50 hover:-translate-y-1 hover:shadow-md active:scale-95 transition-all duration-200"
               >
-                Logout ({loggedInEmail.split('@')[0]})
+                Logout ({user.email?.split('@')[0]})
               </button>
             ) : (
-              <button 
-                onClick={handleMockLogin} 
-                className="flex items-center gap-2 border border-gray-300 bg-white px-5 py-2.5 rounded-full text-xs font-bold text-gray-700 hover:bg-gray-50 hover:-translate-y-1 hover:shadow-md active:scale-95 transition-all duration-200"
-              >
-                <FaGoogle className="text-blue-500" /> Login Dummy
-              </button>
+              <div className={loginLoading ? 'opacity-50 pointer-events-none' : ''}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => console.error('Google login failed')}
+                  size="medium"
+                  shape="pill"
+                  text="signin_with"
+                  theme="outline"
+                />
+              </div>
             )}
           </div>
 
@@ -147,8 +154,8 @@ export default function Navbar({ user, onLogin, onLogout }) {
         </div>
 
         <div className="flex flex-col px-8 py-6 gap-2 flex-grow overflow-y-auto">
-          {groupMembers.map((member) => {
-            const isActive = currentMember.id === member.id;
+          {members.map((member) => {
+            const isActive = currentMember?.id === member.id;
             return (
               <Link 
                 key={member.id} 
@@ -169,14 +176,21 @@ export default function Navbar({ user, onLogin, onLogout }) {
             </button>
           )}
 
-          {loggedInEmail ? (
-            <button onClick={() => { handleMockLogout(); closeMobileMenu(); }} className="w-full text-xs font-bold uppercase tracking-widest text-red-600 border border-red-200 bg-white px-6 py-4 rounded-lg shadow-sm hover:bg-red-50 active:scale-95 transition-all duration-200">
+          {user ? (
+            <button onClick={handleLogout} className="w-full text-xs font-bold uppercase tracking-widest text-red-600 border border-red-200 bg-white px-6 py-4 rounded-lg shadow-sm hover:bg-red-50 active:scale-95 transition-all duration-200">
               Logout
             </button>
           ) : (
-            <button onClick={() => { handleMockLogin(); closeMobileMenu(); }} className="w-full flex justify-center items-center gap-2 border border-gray-300 bg-white px-6 py-4 rounded-lg text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-50 active:scale-95 transition-all duration-200">
-              <FaGoogle className="text-blue-500" /> Login Dummy
-            </button>
+            <div className={`flex justify-center ${loginLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => console.error('Google login failed')}
+                size="medium"
+                shape="pill"
+                text="signin_with"
+                theme="outline"
+              />
+            </div>
           )}
         </div>
       </div>

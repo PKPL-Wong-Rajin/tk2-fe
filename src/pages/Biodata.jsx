@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
-import { FaLinkedin, FaGithub, FaEnvelope, FaUpload, FaTimes } from 'react-icons/fa';
-import { groupMembers } from '../data/members.js';
+import { FaLinkedin, FaGithub, FaEnvelope, FaTimes } from 'react-icons/fa';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const skillLogos = {
   html: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
@@ -26,15 +27,61 @@ const AVAILABLE_SKILLS = [
   "Tailwind", "Git", "GitHub"
 ];
 
-const DEFAULT_LIGHT_COLOR = "#FEF4CE"; 
-const DEFAULT_DARK_COLOR = "#EED0AD";  
+const GOOGLE_FONTS = [
+  "Roboto",
+  "Open Sans",
+  "Lato",
+  "Montserrat",
+  "Poppins",
+  "Inter",
+  "Raleway",
+  "Nunito",
+  "Playfair Display",
+  "Merriweather",
+  "Source Sans 3",
+  "PT Sans",
+  "Outfit",
+  "Work Sans",
+  "Rubik",
+  "DM Sans",
+  "Manrope",
+  "Space Grotesk",
+  "Josefin Sans",
+  "Quicksand",
+  "Bebas Neue",
+  "Oswald",
+  "Cabin",
+  "Karla",
+  "Fira Sans",
+  "Bitter",
+  "Libre Baskerville",
+  "Crimson Text",
+  "IBM Plex Sans",
+  "JetBrains Mono",
+];
 
-export default function Biodata() {
+const DEFAULT_LIGHT_COLOR = "#FEF4CE"; 
+const DEFAULT_DARK_COLOR = "#EED0AD";
+const DEFAULT_FONT_FAMILY = "Roboto";
+
+function loadGoogleFont(fontFamily) {
+  if (!fontFamily) return;
+  const id = `gfont-${fontFamily.replace(/\s+/g, '-').toLowerCase()}`;
+  if (document.getElementById(id)) return;
+
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:wght@400;500;600;700;800&display=swap`;
+  document.head.appendChild(link);
+}
+
+export default function Biodata({ members = [], user, onBiodataUpdate, onBgColorChange }) {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  const currentIndex = groupMembers.findIndex(m => m.id === id);
-  const baseMember = currentIndex !== -1 ? groupMembers[currentIndex] : null;
+  const currentIndex = members.findIndex(m => m.id === id);
+  const baseMember = currentIndex !== -1 ? members[currentIndex] : null;
 
   const [member, setMember] = useState(baseMember);
   
@@ -43,23 +90,32 @@ export default function Biodata() {
   const [editForm, setEditForm] = useState({});
   const [skillSearch, setSkillSearch] = useState('');
   const [isSkillDropdownOpen, setIsSkillDropdownOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
     if (baseMember) {
-      const savedData = localStorage.getItem(`edited_member_${baseMember.id}`);
-      if (savedData) {
-        setMember(JSON.parse(savedData));
-      } else {
-        setMember({ ...baseMember, lightColor: DEFAULT_LIGHT_COLOR, darkColor: DEFAULT_DARK_COLOR });
-      }
+      setMember(baseMember);
+      if (onBgColorChange) onBgColorChange(baseMember.style?.bgColor || '#f3f4f6');
     }
   }, [baseMember]);
 
-  // --- MENDENGARKAN PERINTAH EDIT DARI NAVBAR ---
+  // Load Google Font when member changes
+  useEffect(() => {
+    if (member?.style?.fontFamily) {
+      loadGoogleFont(member.style.fontFamily);
+    }
+  }, [member?.style?.fontFamily]);
+
   const openEditModal = useCallback(() => {
     if(member) {
-      setEditForm({ ...member, skills: member.skills ? [...member.skills] : [] });
+      setEditForm({
+        ...member,
+        skills: member.skills ? [...member.skills] : [],
+        style: { ...member.style },
+      });
       setSkillSearch('');
+      setSaveError(null);
       setIsEditModalOpen(true);
     }
   }, [member]);
@@ -68,28 +124,36 @@ export default function Biodata() {
     window.addEventListener('triggerOpenEditModal', openEditModal);
     return () => window.removeEventListener('triggerOpenEditModal', openEditModal);
   }, [openEditModal]);
-  // ----------------------------------------------
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (isSkillsModalOpen || isEditModalOpen || !member) return;
       if (e.key === 'ArrowRight') {
-        const nextIndex = (currentIndex + 1) % groupMembers.length;
-        navigate(`/member/${groupMembers[nextIndex].id}`);
+        const nextIndex = (currentIndex + 1) % members.length;
+        navigate(`/member/${members[nextIndex].id}`);
       } else if (e.key === 'ArrowLeft') {
-        const prevIndex = (currentIndex - 1 + groupMembers.length) % groupMembers.length;
-        navigate(`/member/${groupMembers[prevIndex].id}`);
+        const prevIndex = (currentIndex - 1 + members.length) % members.length;
+        navigate(`/member/${members[prevIndex].id}`);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex, navigate, isSkillsModalOpen, isEditModalOpen, member]);
+  }, [currentIndex, navigate, isSkillsModalOpen, isEditModalOpen, member, members]);
 
   if (!baseMember || !member) return <Navigate to="/" />;
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setEditForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleStyleChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm(prev => ({
+      ...prev,
+      style: { ...prev.style, [name]: value },
+    }));
+    if (name === 'fontFamily') loadGoogleFont(value);
   };
 
   const addSkill = (skillName) => {
@@ -107,15 +171,51 @@ export default function Biodata() {
     !(editForm.skills || []).some(s => s.toLowerCase() === skill.toLowerCase())
   );
 
-  const saveEdits = (e) => {
+  const saveEdits = async (e) => {
     e.preventDefault();
-    const updatedMember = { ...editForm };
-    setMember(updatedMember);
-    localStorage.setItem(`edited_member_${member.id}`, JSON.stringify(updatedMember));
-    setIsEditModalOpen(false);
-    
-    // Memberi sinyal ke Navbar kalau data berubah (agar navbar bisa refresh info jika perlu)
-    window.dispatchEvent(new Event('biodataUpdated')); 
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      const body = {
+        description: editForm.description,
+        photo: editForm.photo,
+        email: editForm.email,
+        linkedin: editForm.linkedin,
+        github: editForm.github,
+        downloadCv: editForm.downloadCv,
+        portofolio: editForm.portofolio,
+        skills: editForm.skills,
+        style: {
+          lightColor: editForm.style?.lightColor,
+          darkColor: editForm.style?.darkColor,
+          fontFamily: editForm.style?.fontFamily,
+          bgColor: editForm.style?.bgColor,
+        },
+      };
+
+      const res = await fetch(`${API_URL}/biodata/${member.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        const updatedMember = await res.json();
+        setMember(updatedMember);
+        setIsEditModalOpen(false);
+        if (onBiodataUpdate) onBiodataUpdate(updatedMember);
+      } else {
+        const error = await res.json();
+        setSaveError(error.message || 'Failed to save changes');
+      }
+    } catch (error) {
+      setSaveError('Network error — please try again');
+      console.error('Save error:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const nameCharacters = (member.alias || "NAME").split('');
@@ -125,11 +225,48 @@ export default function Biodata() {
     return skillLogos[key] || null;
   };
 
-  const lightBg = member.lightColor || DEFAULT_LIGHT_COLOR;
-  const darkBg = member.darkColor || DEFAULT_DARK_COLOR;
+  const lightBg = member.style?.lightColor || DEFAULT_LIGHT_COLOR;
+  const darkBg = member.style?.darkColor || DEFAULT_DARK_COLOR;
+  const fontFamily = member.style?.fontFamily || DEFAULT_FONT_FAMILY;
+
+  const isOwner = user?.email === member.email;
 
   return (
-    <div className="relative w-full max-w-[1400px] mx-auto min-h-screen lg:min-h-[700px] lg:h-[70dvh] bg-white overflow-hidden lg:overflow-visible font-sans flex flex-col lg:block pt-10 lg:pt-0 pb-6 lg:pb-0 lg:px-0">
+    <>
+      {isOwner && (
+        <div className="max-w-xl mx-auto mb-8 p-4 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 flex flex-wrap gap-4 items-center justify-between relative z-40">
+          <span className="font-semibold text-gray-700">🎨 Mode Edit Warna Latar</span>
+          <div className="flex items-center gap-3">
+            <input 
+              type="color" 
+              value={member.style?.bgColor || '#f3f4f6'}
+              onChange={(e) => {
+                const newColor = e.target.value;
+                setMember(prev => ({ ...prev, style: { ...prev.style, bgColor: newColor } }));
+                if (onBgColorChange) onBgColorChange(newColor);
+              }}
+              onBlur={async () => {
+                try {
+                  const res = await fetch(`${API_URL}/biodata/${member.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ style: { bgColor: member.style?.bgColor } }),
+                  });
+                  if (res.ok) {
+                    const updated = await res.json();
+                    if (onBiodataUpdate) onBiodataUpdate(updated);
+                  }
+                } catch {}
+              }}
+              className="w-10 h-10 p-1 cursor-pointer rounded bg-white"
+            />
+            <span className="text-sm font-mono text-gray-500">{member.style?.bgColor || '#f3f4f6'}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="relative w-full max-w-[1400px] mx-auto min-h-screen lg:min-h-[700px] lg:h-[70dvh] bg-white overflow-hidden lg:overflow-visible font-sans flex flex-col lg:block pt-10 lg:pt-0 pb-6 lg:pb-0 lg:px-0">
       
       {/* BACKGROUND BLOCKS */}
       <div className="hidden lg:block absolute top-[12%] bottom-0 left-[6%] w-[20%] z-0 min-h-[600px] max-h-[900px] transition-colors duration-500" style={{ backgroundColor: lightBg }}></div>
@@ -163,12 +300,12 @@ export default function Biodata() {
         </div>
       </div> 
 
-      {/* DESKRIPSI */}
+      {/* DESKRIPSI — fontFamily applied here */}
       <div className="order-2 relative lg:absolute lg:top-[10%] lg:bottom-[30%] lg:left-[58%] lg:right-[4%] z-20 flex flex-col justify-center lg:bg-transparent px-6 py-6 mt-4 lg:p-0 lg:m-0 rounded-3xl lg:rounded-none lg:pr-4 text-center lg:text-left shadow-sm lg:shadow-none transition-colors duration-500" style={{ backgroundColor: window.innerWidth < 1024 ? lightBg : 'transparent' }}>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 lg:mb-4 leading-tight">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 lg:mb-4 leading-tight" style={{ fontFamily }}>
           {member.name} - {member.npm}
         </h2>
-        <p className="text-[13px] lg:text-[14px] text-gray-800 mb-5 font-medium leading-relaxed max-w-md mx-auto lg:mx-0">
+        <p className="text-[13px] lg:text-[14px] text-gray-800 mb-5 font-medium leading-relaxed max-w-md mx-auto lg:mx-0" style={{ fontFamily }}>
           {member.description}
         </p>
         
@@ -247,22 +384,52 @@ export default function Biodata() {
               </button>
             </div>
 
+            {saveError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 font-medium">
+                {saveError}
+              </div>
+            )}
+
             <form onSubmit={saveEdits} className="overflow-y-auto pr-2 space-y-5 flex-1 custom-scrollbar">
               
-              <div className="flex gap-4 p-4 bg-gray-50 rounded-xl border">
-                <div className="flex-1">
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Warna Utama (Krem)</label>
-                  <div className="flex items-center gap-3">
-                    <input type="color" name="lightColor" value={editForm.lightColor || DEFAULT_LIGHT_COLOR} onChange={handleFormChange} className="w-10 h-10 rounded cursor-pointer border-0 p-0" />
-                    <span className="text-sm font-mono text-gray-500">{editForm.lightColor || DEFAULT_LIGHT_COLOR}</span>
+              {/* STYLE: Colors + Font */}
+              <div className="p-4 bg-gray-50 rounded-xl border space-y-4">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Warna Utama (Krem)</label>
+                    <div className="flex items-center gap-3">
+                      <input type="color" name="lightColor" value={editForm.style?.lightColor || DEFAULT_LIGHT_COLOR} onChange={handleStyleChange} className="w-10 h-10 rounded cursor-pointer border-0 p-0" />
+                      <span className="text-sm font-mono text-gray-500">{editForm.style?.lightColor || DEFAULT_LIGHT_COLOR}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Warna Aksen (Coklat)</label>
+                    <div className="flex items-center gap-3">
+                      <input type="color" name="darkColor" value={editForm.style?.darkColor || DEFAULT_DARK_COLOR} onChange={handleStyleChange} className="w-10 h-10 rounded cursor-pointer border-0 p-0" />
+                      <span className="text-sm font-mono text-gray-500">{editForm.style?.darkColor || DEFAULT_DARK_COLOR}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex-1">
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Warna Aksen (Coklat)</label>
-                  <div className="flex items-center gap-3">
-                    <input type="color" name="darkColor" value={editForm.darkColor || DEFAULT_DARK_COLOR} onChange={handleFormChange} className="w-10 h-10 rounded cursor-pointer border-0 p-0" />
-                    <span className="text-sm font-mono text-gray-500">{editForm.darkColor || DEFAULT_DARK_COLOR}</span>
-                  </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Font Family</label>
+                  <select
+                    name="fontFamily"
+                    value={editForm.style?.fontFamily || DEFAULT_FONT_FAMILY}
+                    onChange={handleStyleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
+                    style={{ fontFamily: editForm.style?.fontFamily || DEFAULT_FONT_FAMILY }}
+                  >
+                    {GOOGLE_FONTS.map(font => (
+                      <option key={font} value={font} style={{ fontFamily: font }}>
+                        {font}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1.5 text-xs text-gray-400">Preview:</p>
+                  <p className="text-sm text-gray-700 mt-1" style={{ fontFamily: editForm.style?.fontFamily || DEFAULT_FONT_FAMILY }}>
+                    {member.name} — {member.description?.substring(0, 60)}...
+                  </p>
                 </div>
               </div>
 
@@ -326,8 +493,10 @@ export default function Biodata() {
               </div>
 
               <div className="pt-4 border-t flex justify-end gap-3 mt-4">
-                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-full transition">Batal</button>
-                <button type="submit" className="px-5 py-2.5 text-sm font-bold bg-gray-900 text-white hover:bg-gray-800 rounded-full shadow-md transition">Simpan Perubahan</button>
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-full transition" disabled={isSaving}>Batal</button>
+                <button type="submit" className="px-5 py-2.5 text-sm font-bold bg-gray-900 text-white hover:bg-gray-800 rounded-full shadow-md transition disabled:opacity-50" disabled={isSaving}>
+                  {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </button>
               </div>
 
             </form>
@@ -336,5 +505,6 @@ export default function Biodata() {
       )}
 
     </div>
+    </>
   );
 }
