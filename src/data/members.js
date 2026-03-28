@@ -13,7 +13,8 @@ export const groupMembers = [
     github: "https://github.com/", //TODO
     downloadCv: "/cv-ilham.pdf", //TODO ../src/assets/cv
     portofolio: "LINK PORTO", //TODO
-    skills: ["HTML", "CSS", "JavaScript", "Figma"] //TODO
+    skills: ["HTML", "CSS", "JavaScript", "Figma"], //TODO
+    email: "ilham"
   },
   {
     id: "faza",
@@ -27,7 +28,8 @@ export const groupMembers = [
     github: "https://github.com/", //TODO
     downloadCv: "/cv-faza.pdf", //TODO ../src/assets/cv
     portofolio: "LINK PORTO", //TODO
-    skills: ["HTML", "CSS", "JavaScript", "Figma"] //TODO
+    skills: ["HTML", "CSS", "JavaScript", "Figma"], //TODO
+    email: "faza"
   },
   {
     id: "fidan",
@@ -41,7 +43,8 @@ export const groupMembers = [
     github: "https://github.com/fidan-khalil",
     downloadCv: "/cv-fidan.pdf", //TODO ../src/assets/cv
     portofolio: "LINK PORTO", //TODO
-    skills: ["Python", "Java", "Django", "React", "Tailwind CSS", "UI/UX Research"] //TODO
+    skills: ["Python", "Java", "Django", "React", "Tailwind CSS", "UI/UX Research"], //TODO
+    email: "fidan"
   },
   {
     id: "jihan",
@@ -55,7 +58,8 @@ export const groupMembers = [
     github: "https://github.com/", //TODO
     downloadCv: "/cv-jihan.pdf", //TODO ../src/assets/cv
     portofolio: "LINK PORTO", //TODO
-    skills: ["HTML", "CSS", "JavaScript", "Figma"] //TODO
+    skills: ["HTML", "CSS", "JavaScript", "Figma"], //TODO
+    email: "jihan"
   },
   {
     id: "putri",
@@ -69,6 +73,7 @@ export const groupMembers = [
     github: "https://github.com/", //TODO
     downloadCv: "/cv-putri.pdf", //TODO ../src/assets/cv
     portofolio: "LINK PORTO", //TODO
-    skills: ["HTML", "CSS", "JavaScript", "Figma"] //TODO
+    skills: ["HTML", "CSS", "JavaScript", "Figma"], //TODO
+    email: "putri"
   }
 ];
