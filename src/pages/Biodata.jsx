@@ -367,8 +367,8 @@ export default function Biodata({ members = [], user, onBiodataUpdate, onBgColor
           <img 
             src={member.photo} 
             alt={member.name} 
-            className="relative z-10 block h-[320px] sm:h-[350px] lg:h-auto w-auto lg:max-h-full object-contain drop-shadow-2xl mix-blend-normal lg:mix-blend-multiply px-6 sm:px-12 lg:px-0 transition-all duration-500"
-            style={{ filter: 'grayscale(100%) contrast(120%)' }} 
+            className="relative z-10 block h-[320px] sm:h-[350px] lg:h-auto w-auto lg:max-h-full object-contain drop-shadow-2xl px-6 sm:px-12 lg:px-0 transition-all duration-500"
+            style={{ filter: 'contrast(105%)' }} 
           />
         </div>
       </div> 
