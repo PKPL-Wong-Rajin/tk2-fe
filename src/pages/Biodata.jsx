@@ -518,7 +518,7 @@ export default function Biodata({ members = [], user, onBiodataUpdate, onBgColor
               </div>
 
               <div className="p-4 bg-gray-50 rounded-xl border">
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Skills (Cari dan Pilih)</label>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Skills</label>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {(editForm.skills || []).map(skill => (
                     <span key={skill} className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-1 text-xs font-bold rounded-full">
