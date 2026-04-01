@@ -67,7 +67,7 @@ export default function Navbar({ user, onLogin, onLogout, members = [] }) {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm pointer-events-auto transition-all duration-300">
+      <nav className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm pointer-events-auto transition-all duration-300">
         <div className="max-w-[1400px] mx-auto px-6 py-4 lg:px-12 flex justify-between items-center w-full relative">
           
           {/* LOGO */}
