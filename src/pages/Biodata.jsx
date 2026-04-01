@@ -469,14 +469,14 @@ export default function Biodata({ members = [], user, onBiodataUpdate, onBgColor
               <div className="p-4 bg-gray-50 rounded-xl border space-y-4">
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Warna Utama (Krem)</label>
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Warna Utama</label>
                     <div className="flex items-center gap-3">
                       <input type="color" name="lightColor" value={editForm.style?.lightColor || DEFAULT_LIGHT_COLOR} onChange={handleStyleChange} className="w-10 h-10 rounded cursor-pointer border-0 p-0" />
                       <span className="text-sm font-mono text-gray-500">{editForm.style?.lightColor || DEFAULT_LIGHT_COLOR}</span>
                     </div>
                   </div>
                   <div className="flex-1">
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Warna Aksen (Coklat)</label>
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Warna Aksen</label>
                     <div className="flex items-center gap-3">
                       <input type="color" name="darkColor" value={editForm.style?.darkColor || DEFAULT_DARK_COLOR} onChange={handleStyleChange} className="w-10 h-10 rounded cursor-pointer border-0 p-0" />
                       <span className="text-sm font-mono text-gray-500">{editForm.style?.darkColor || DEFAULT_DARK_COLOR}</span>
